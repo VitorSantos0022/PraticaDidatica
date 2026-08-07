@@ -2,210 +2,105 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Game 3D - Crimpagem RJ-45 (SENAI)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Crimpagem RJ-45 3D - SENAI</title>
   <style>
-    * { 
-      margin: 0; 
-      padding: 0; 
-      box-sizing: border-box; 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; user-select: none; }
+    body { background: #0b0f19; color: #fff; overflow: hidden; width: 100vw; height: 100vh; }
+    #canvas-container { width: 100vw; height: 100vh; touch-action: none; position: absolute; top: 0; left: 0; }
     
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: #0b0f19;
-      color: #fff;
+    /* Painel lateral no PC (Esquerda) e responsivo no Celular */
+    #ui { 
+      position: absolute; 
+      top: 15px; 
+      left: 15px; 
+      z-index: 10; 
+      background: rgba(18, 24, 38, 0.95); 
+      backdrop-filter: blur(10px); 
+      border: 1px solid rgba(255, 255, 255, 0.15); 
+      border-radius: 12px; 
+      padding: 16px; 
+      width: 360px; 
+      max-width: calc(100vw - 30px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
 
-    #canvas-container { 
-      width: 100vw; 
-      height: 100vh; 
-      touch-action: none; 
+    h1 { font-size: 1.1rem; color: #58a6ff; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    p.desc { font-size: 0.78rem; color: #8b949e; margin-bottom: 12px; line-height: 1.3; }
+
+    .pattern-selector { display: flex; gap: 6px; margin-bottom: 10px; }
+    .pattern-btn { flex: 1; padding: 8px; background: #21262d; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; font-weight: bold; font-size: 0.78rem; cursor: pointer; transition: 0.2s; }
+    .pattern-btn.active { background: #1f6beb; color: #fff; border-color: #58a6ff; }
+
+    .pins-container { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin-bottom: 10px; background: #0d1117; padding: 6px; border-radius: 6px; border: 1px solid #30363d; }
+    .pin-slot { aspect-ratio: 1/2; border: 1px dashed #484f58; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 2px; font-size: 0.6rem; font-weight: bold; color: #8b949e; cursor: pointer; }
+
+    .color-palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 12px; }
+    .color-btn { padding: 8px 2px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); font-size: 0.65rem; font-weight: bold; color: #fff; text-shadow: 0 1px 2px #000; cursor: pointer; text-align: center; }
+
+    .action-group { display: flex; gap: 6px; }
+    .btn-act { flex: 1; padding: 9px; border-radius: 6px; border: none; font-weight: bold; font-size: 0.78rem; cursor: pointer; text-align: center; text-decoration: none; transition: 0.2s; }
+    .btn-ver { background: #238636; color: #fff; }
+    .btn-ver:hover, .btn-ver:active { background: #2ea043; }
+    .btn-res { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+    .btn-res:hover, .btn-res:active { background: #30363d; color: #fff; }
+    .btn-nav { background: #30363d; color: #ccc; }
+    .btn-nav:hover, .btn-nav:active { background: #484f58; color: #fff; }
+
+    #status { margin-top: 10px; padding: 8px; border-radius: 6px; font-size: 0.78rem; text-align: center; font-weight: bold; display: none; }
+
+    /* Ajustes para telas de Celular */
+    @media (max-width: 600px) {
+      #ui { 
+        top: auto; 
+        bottom: 12px; 
+        left: 50%; 
+        transform: translateX(-50%); 
+        width: 92vw; 
+        padding: 12px;
+      }
+      h1 { font-size: 0.95rem; }
+      p.desc { font-size: 0.72rem; margin-bottom: 8px; }
+      .color-btn { padding: 6px 2px; }
     }
-
-    /* Interface Principal */
-    #game-ui {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      right: 10px;
-      z-index: 10;
-      background: rgba(18, 24, 38, 0.92);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 12px;
-      padding: 14px;
-      max-width: 420px;
-      margin: 0 auto;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-    }
-
-    h1 { font-size: 1.1rem; color: #58a6ff; text-align: center; margin-bottom: 4px; }
-    p.desc { font-size: 0.78rem; color: #8b949e; text-align: center; margin-bottom: 10px; }
-
-    /* Seletor de Padrão */
-    .pattern-selector {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .pattern-btn {
-      flex: 1;
-      padding: 8px;
-      background: #21262d;
-      border: 1px solid #30363d;
-      color: #c9d1d9;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 0.8rem;
-      cursor: pointer;
-    }
-
-    .pattern-btn.active {
-      background: #1f6beb;
-      border-color: #58a6ff;
-      color: #fff;
-    }
-
-    /* Slots dos Pinos (1 a 8) */
-    .pins-container {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 4px;
-      margin-bottom: 12px;
-      background: #0d1117;
-      padding: 6px;
-      border-radius: 8px;
-      border: 1px solid #30363d;
-    }
-
-    .pin-slot {
-      aspect-ratio: 1 / 2.2;
-      border: 1px dashed #484f58;
-      border-radius: 4px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      padding: 4px 2px;
-      font-size: 0.65rem;
-      font-weight: bold;
-      color: #8b949e;
-      cursor: pointer;
-    }
-
-    .pin-slot.filled {
-      border-style: solid;
-      color: #fff;
-    }
-
-    /* Paleta de Cores Selecionáveis */
-    .color-palette {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-
-    .color-btn {
-      padding: 8px 4px;
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.2);
-      font-size: 0.7rem;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-      cursor: pointer;
-      text-align: center;
-    }
-
-    .color-btn:active { transform: scale(0.95); }
-
-    /* Botão de Ação / Reset */
-    .action-group {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn-action {
-      flex: 1;
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      font-weight: bold;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-
-    .btn-verify { background: #238636; color: #fff; }
-    .btn-reset { background: #da3633; color: #fff; }
-
-    /* Modal de Feedback */
-    #status-modal {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      text-align: center;
-      font-weight: bold;
-      display: none;
-    }
-
-    .status-success { background: rgba(46, 160, 67, 0.2); border: 1px solid #2ea043; color: #3fb950; }
-    .status-error { background: rgba(248, 81, 73, 0.2); border: 1px solid #f85149; color: #f85149; }
   </style>
-
-  <!-- Three.js e OrbitControls -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
-
-  <div id="game-ui">
-    <h1>🔌 Desafio de Crimpagem RJ-45</h1>
-    <p class="desc">Selecione o padrão e ordene os 8 fios nos pinos correspondentes:</p>
-
-    <!-- Escolha da Norma -->
+  <div id="ui">
+    <h1>🔌 Crimpagem RJ-45 3D</h1>
+    <p class="desc">Escolha a norma e toque nas cores para preencher os 8 pinos do conector:</p>
+    
     <div class="pattern-selector">
-      <button class="pattern-btn active" onclick="setPattern('T568A')">Padrão T568A</button>
-      <button class="pattern-btn" onclick="setPattern('T568B')">Padrão T568B</button>
+      <button class="pattern-btn active" id="btnA" onclick="setPattern('T568A')">Norma T568A</button>
+      <button class="pattern-btn" id="btnB" onclick="setPattern('T568B')">Norma T568B</button>
     </div>
 
-    <!-- Slots dos Pinos -->
-    <div class="pins-container" id="pins-container"></div>
+    <div class="pins-container" id="pins"></div>
+    <div class="color-palette" id="palette"></div>
 
-    <!-- Paleta de Cores de Fios -->
-    <div class="color-palette" id="color-palette"></div>
-
-    <!-- Controles -->
     <div class="action-group">
-      <button class="btn-action btn-reset" onclick="resetGame()">🔄 Limpar</button>
-      <button class="btn-action btn-verify" onclick="verifyCrimp()">✅ Testar Conexão</button>
+      <a href="index.html" class="btn-act btn-nav">⬅️ Menu</a>
+      <button class="btn-act btn-res" onclick="resetGame()">🔄 Limpar</button>
+      <button class="btn-act btn-ver" onclick="verifyCrimp()">✅ Testar</button>
     </div>
-
-    <div id="status-modal"></div>
+    
+    <div id="status"></div>
   </div>
 
   <div id="canvas-container"></div>
 
   <script>
-    // Definição de Cores e Padrões Normatizados (ANSI/TIA-568)
-    const WIRE_COLORS = {
-      'VB': { name: 'Verde/Branco', hex: 0x90ee90, bg: 'linear-gradient(135deg, #fff 50%, #2ea043 50%)', text: '#000' },
-      'V':  { name: 'Verde',        hex: 0x2ea043, bg: '#2ea043', text: '#fff' },
-      'LB': { name: 'Laranja/Branco',hex: 0xffa500, bg: 'linear-gradient(135deg, #fff 50%, #ff7b72 50%)', text: '#000' },
-      'A':  { name: 'Azul',         hex: 0x1f6beb, bg: '#1f6beb', text: '#fff' },
-      'AB': { name: 'Azul/Branco',   hex: 0xadd8e6, bg: 'linear-gradient(135deg, #fff 50%, #1f6beb 50%)', text: '#000' },
-      'L':  { name: 'Laranja',      hex: 0xff7b72, bg: '#ff7b72', text: '#fff' },
-      'MB': { name: 'Marrom/Branco', hex: 0xd2b48c, bg: 'linear-gradient(135deg, #fff 50%, #8b4513 50%)', text: '#000' },
-      'M':  { name: 'Marrom',       hex: 0x8b4513, bg: '#8b4513', text: '#fff' }
+    const COLORS = {
+      'VB': { hex: 0x90ee90, bg: 'linear-gradient(135deg, #fff 50%, #2ea043 50%)', txt: '#000' },
+      'V':  { hex: 0x2ea043, bg: '#2ea043', txt: '#fff' },
+      'LB': { hex: 0xffa500, bg: 'linear-gradient(135deg, #fff 50%, #ff7b72 50%)', txt: '#000' },
+      'A':  { hex: 0x1f6beb, bg: '#1f6beb', txt: '#fff' },
+      'AB': { hex: 0xadd8e6, bg: 'linear-gradient(135deg, #fff 50%, #1f6beb 50%)', txt: '#000' },
+      'L':  { hex: 0xff7b72, bg: '#ff7b72', txt: '#fff' },
+      'MB': { hex: 0xd2b48c, bg: 'linear-gradient(135deg, #fff 50%, #8b4513 50%)', txt: '#000' },
+      'M':  { hex: 0x8b4513, bg: '#8b4513', txt: '#fff' }
     };
 
     const PATTERNS = {
@@ -213,198 +108,143 @@
       'T568B': ['LB', 'L', 'VB', 'A', 'AB', 'V', 'MB', 'M']
     };
 
-    let currentPattern = 'T568A';
+    let currentPat = 'T568A';
     let userOrder = Array(8).fill(null);
 
-    // Inicialização do Game e UI
     function initUI() {
-      const pinsContainer = document.getElementById('pins-container');
-      pinsContainer.innerHTML = '';
-      
-      for (let i = 0; i < 8; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'pin-slot';
-        slot.id = `pin-${i}`;
-        slot.onclick = () => removeWire(i);
-        slot.innerHTML = `<span>P${i+1}</span>`;
-        pinsContainer.appendChild(slot);
+      const pEl = document.getElementById('pins');
+      pEl.innerHTML = '';
+      for(let i = 0; i < 8; i++) {
+        pEl.innerHTML += `<div class="pin-slot" id="pin-${i}" onclick="removeWire(${i})"><span>P${i+1}</span></div>`;
       }
-
-      const palette = document.getElementById('color-palette');
-      palette.innerHTML = '';
-      
-      Object.keys(WIRE_COLORS).forEach(key => {
-        const btn = document.createElement('div');
-        btn.className = 'color-btn';
-        btn.style.background = WIRE_COLORS[key].bg;
-        btn.style.color = WIRE_COLORS[key].text;
-        btn.innerText = WIRE_COLORS[key].name;
-        btn.onclick = () => addWire(key);
-        palette.appendChild(btn);
+      const palEl = document.getElementById('palette');
+      palEl.innerHTML = '';
+      Object.keys(COLORS).forEach(k => {
+        palEl.innerHTML += `<div class="color-btn" style="background:${COLORS[k].bg};color:${COLORS[k].txt}" onclick="addWire('${k}')">${k}</div>`;
       });
     }
 
-    function setPattern(pat) {
-      currentPattern = pat;
-      document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+    function setPattern(p) {
+      currentPat = p;
+      document.getElementById('btnA').className = `pattern-btn ${p==='T568A'?'active':''}`;
+      document.getElementById('btnB').className = `pattern-btn ${p==='T568B'?'active':''}`;
       resetGame();
     }
 
-    function addWire(colorKey) {
-      const emptyIdx = userOrder.indexOf(null);
-      if (emptyIdx !== -1) {
-        userOrder[emptyIdx] = colorKey;
-        updateUI();
-        update3DWires();
-      }
+    function addWire(k) {
+      const idx = userOrder.indexOf(null);
+      if(idx !== -1) { userOrder[idx] = k; updateUI(); update3D(); }
     }
-
-    function removeWire(index) {
-      userOrder[index] = null;
-      updateUI();
-      update3DWires();
-    }
-
+    function removeWire(i) { userOrder[i] = null; updateUI(); update3D(); }
+    
     function resetGame() {
-      userOrder = Array(8).fill(null);
-      document.getElementById('status-modal').style.display = 'none';
-      updateUI();
-      update3DWires();
+      userOrder.fill(null);
+      document.getElementById('status').style.display = 'none';
+      updateUI(); update3D();
     }
 
     function updateUI() {
-      userOrder.forEach((colorKey, i) => {
-        const slot = document.getElementById(`pin-${i}`);
-        if (colorKey) {
-          slot.className = 'pin-slot filled';
-          slot.style.background = WIRE_COLORS[colorKey].bg;
-          slot.style.color = WIRE_COLORS[colorKey].text;
-          slot.innerHTML = `<span>P${i+1}</span><span>${colorKey}</span>`;
+      userOrder.forEach((k, i) => {
+        const el = document.getElementById(`pin-${i}`);
+        if(k) {
+          el.style.background = COLORS[k].bg;
+          el.style.color = COLORS[k].txt;
+          el.innerHTML = `<span>P${i+1}</span><span>${k}</span>`;
         } else {
-          slot.className = 'pin-slot';
-          slot.style.background = 'transparent';
-          slot.style.color = '#8b949e';
-          slot.innerHTML = `<span>P${i+1}</span>`;
+          el.style.background = 'transparent';
+          el.style.color = '#8b949e';
+          el.innerHTML = `<span>P${i+1}</span>`;
         }
       });
     }
 
     function verifyCrimp() {
-      const modal = document.getElementById('status-modal');
-      modal.style.display = 'block';
-
-      if (userOrder.includes(null)) {
-        modal.className = 'status-error';
-        modal.innerText = '⚠️ Insira todos os 8 fios nos pinos!';
+      const st = document.getElementById('status');
+      st.style.display = 'block';
+      if(userOrder.includes(null)) {
+        st.style.background = 'rgba(248,81,73,0.2)'; st.style.color = '#f85149';
+        st.innerText = '⚠️ Preencha os 8 pinos do conector!';
         return;
       }
-
-      const targetPattern = PATTERNS[currentPattern];
-      const isCorrect = userOrder.every((val, index) => val === targetPattern[index]);
-
-      if (isCorrect) {
-        modal.className = 'status-success';
-        modal.innerText = `🎉 Excelente! Crimpagem ${currentPattern} 100% CORRETA! Sinal de rede verificado.`;
-        animateSuccess();
+      const ok = userOrder.every((v, i) => v === PATTERNS[currentPat][i]);
+      if(ok) {
+        st.style.background = 'rgba(46,160,67,0.2)'; st.style.color = '#3fb950';
+        st.innerText = `🎉 Crimpagem ${currentPat} CORRETA!`;
       } else {
-        modal.className = 'status-error';
-        modal.innerText = `❌ Falha na conexão! Sequência incorreta para o padrão ${currentPattern}.`;
+        st.style.background = 'rgba(248,81,73,0.2)'; st.style.color = '#f85149';
+        st.innerText = `❌ Sequência incorreta para ${currentPat}!`;
       }
     }
 
-    // --- CENA 3D (THREE.JS) ---
-    const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0b0f19, 0.03);
+    // 3D Scene
+    let scene, camera, renderer, controls, wireMeshes = [];
+    const MODEL_Y_OFFSET = -0.8; // Rebaixa o modelo 3D em relação ao topo
 
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 3, 8);
+    window.addEventListener('load', () => {
+      const c = document.getElementById('canvas-container');
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
+      // Posicionamento e foco rebaixados para dar destaque total ao conector RJ-45
+      if(window.innerWidth > 600) {
+        camera.position.set(1.2, MODEL_Y_OFFSET + 1.5, 6.5);
+      } else {
+        camera.position.set(0, MODEL_Y_OFFSET + 2.2, 7.5);
+      }
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      c.appendChild(renderer.domElement);
 
-    // Iluminação
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    dirLight.position.set(5, 10, 5);
-    scene.add(dirLight);
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.target.set(0, MODEL_Y_OFFSET, 0); // Ponto de rotação rebaixado
+      controls.enableDamping = true;
 
-    // Conector RJ-45 Transparente
-    const rjGroup = new THREE.Group();
-    const rjMat = new THREE.MeshPhysicalMaterial({ 
-      color: 0xffffff, 
-      transparent: true, 
-      opacity: 0.3, 
-      roughness: 0.1, 
-      transmission: 0.9 
+      scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+      
+      // Corpo transparente do RJ-45
+      const rjMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, roughness: 0.1, transmission: 0.9 });
+      const rj = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.2, 3), rjMat);
+      rj.position.y = MODEL_Y_OFFSET;
+      scene.add(rj);
+
+      // Pinos metálicos
+      for(let i = 0; i < 8; i++) {
+        const pin = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.8), new THREE.MeshStandardMaterial({ color: 0xb8860b, metalness: 0.9 }));
+        pin.position.set(-1.05 + (i * 0.3), MODEL_Y_OFFSET + 0.6, 0.8);
+        scene.add(pin);
+      }
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+
+      initUI();
+      animate();
     });
-    const rjBody = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.2, 3), rjMat);
-    rjGroup.add(rjBody);
 
-    // Pinos de Cobre em cima
-    for(let i=0; i<8; i++) {
-      const pin = new THREE.Mesh(
-        new THREE.BoxGeometry(0.15, 0.2, 0.8),
-        new THREE.MeshStandardMaterial({ color: 0xb8860b, metalness: 0.9 })
-      );
-      pin.position.set(-1.05 + (i * 0.3), 0.6, 0.8);
-      rjGroup.add(pin);
-    }
-
-    scene.add(rjGroup);
-
-    // Fios 3D Dinâmicos
-    let wireMeshes = [];
-
-    function update3DWires() {
-      // Remove fios antigos
-      wireMeshes.forEach(mesh => scene.remove(mesh));
+    function update3D() {
+      wireMeshes.forEach(m => scene.remove(m));
       wireMeshes = [];
-
-      userOrder.forEach((colorKey, i) => {
-        if (colorKey) {
-          const wireColor = WIRE_COLORS[colorKey].hex;
-          const wireMat = new THREE.MeshStandardMaterial({ color: wireColor, roughness: 0.3 });
-          const wireGeo = new THREE.CylinderGeometry(0.08, 0.08, 3.5, 16);
-          const wire = new THREE.Mesh(wireGeo, wireMat);
-          
-          wire.rotation.x = Math.PI / 2;
-          wire.position.set(-1.05 + (i * 0.3), 0, 0.5);
-          scene.add(wire);
-          wireMeshes.push(wire);
+      userOrder.forEach((k, i) => {
+        if(k) {
+          const w = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 3.5, 12), new THREE.MeshStandardMaterial({ color: COLORS[k].hex }));
+          w.rotation.x = Math.PI / 2;
+          w.position.set(-1.05 + (i * 0.3), MODEL_Y_OFFSET, 0.5);
+          scene.add(w);
+          wireMeshes.push(w);
         }
       });
     }
-
-    function animateSuccess() {
-      let count = 0;
-      const interval = setInterval(() => {
-        rjGroup.rotation.y += 0.2;
-        count++;
-        if(count > 30) clearInterval(interval);
-      }, 30);
-    }
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
-
-    initUI();
-    animate();
   </script>
 </body>
 </html>
