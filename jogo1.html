@@ -3,183 +3,246 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Jogo 1: Patching no Switch 3D - SENAI</title>
+  <title>Patching & Switch 3D - SENAI</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; user-select: none; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; user-select: none; }
     body { background: #0b0f19; color: #fff; overflow: hidden; width: 100vw; height: 100vh; }
-    #canvas-container { width: 100vw; height: 100vh; touch-action: none; }
+    #canvas-container { width: 100vw; height: 100vh; touch-action: none; position: absolute; top: 0; left: 0; }
     
-    #ui {
-      position: absolute; top: 12px; left: 12px; right: 12px; z-index: 10;
-      background: rgba(18, 24, 38, 0.92); backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px;
-      padding: 14px; max-width: 420px; margin: 0 auto; box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    /* Painel lateral no PC (Esquerda) e responsivo no Celular */
+    #ui { 
+      position: absolute; 
+      top: 15px; 
+      left: 15px; 
+      z-index: 10; 
+      background: rgba(18, 24, 38, 0.95); 
+      backdrop-filter: blur(10px); 
+      border: 1px solid rgba(255, 255, 255, 0.15); 
+      border-radius: 12px; 
+      padding: 16px; 
+      width: 340px; 
+      max-width: calc(100vw - 30px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
-    h1 { font-size: 1.1rem; color: #58a6ff; text-align: center; margin-bottom: 4px; }
-    p.desc { font-size: 0.8rem; color: #8b949e; text-align: center; margin-bottom: 10px; }
+
+    h1 { font-size: 1.1rem; color: #58a6ff; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    p.desc { font-size: 0.78rem; color: #8b949e; margin-bottom: 12px; line-height: 1.3; }
     
-    .mission-box { background: #161b22; border-left: 3px solid #f2994a; padding: 10px; border-radius: 6px; margin-bottom: 10px; font-size: 0.8rem; }
-    .status-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; margin-top: 4px; }
-    
-    .controls { display: flex; gap: 8px; margin-top: 10px; }
-    button { flex: 1; padding: 10px; border-radius: 6px; border: none; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
-    .btn-reset { background: #da3633; color: #fff; }
-    .btn-back { background: #30363d; color: #c9d1d9; text-decoration: none; text-align: center; line-height: 20px; }
+    .mission-box { 
+      background: #161b22; 
+      border: 1px solid #30363d; 
+      border-left: 4px solid #f2994a; 
+      padding: 10px; 
+      border-radius: 8px; 
+      font-size: 0.8rem; 
+      margin-bottom: 12px; 
+    }
+    .mission-title { font-weight: bold; color: #f2994a; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; }
+    .mission-desc { color: #e6edf3; font-size: 0.82rem; }
+
+    .score-badge { display: inline-block; background: #1f6beb; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; margin-bottom: 8px; }
+
+    .controls { display: flex; gap: 8px; }
+    .btn { flex: 1; padding: 10px; border-radius: 6px; border: none; font-weight: bold; font-size: 0.8rem; cursor: pointer; text-align: center; text-decoration: none; transition: 0.2s; }
+    .btn-res { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+    .btn-res:hover, .btn-res:active { background: #30363d; color: #fff; }
+    .btn-nav { background: #30363d; color: #ccc; }
+    .btn-nav:hover, .btn-nav:active { background: #484f58; color: #fff; }
+
+    /* Ajuste para telas pequenas (Celulares em Pé) */
+    @media (max-width: 600px) {
+      #ui { 
+        top: auto; 
+        bottom: 15px; 
+        left: 50%; 
+        transform: translateX(-50%); 
+        width: 92vw; 
+        padding: 12px;
+      }
+      h1 { font-size: 0.95rem; }
+      p.desc { font-size: 0.72rem; margin-bottom: 8px; }
+      .mission-box { padding: 8px; margin-bottom: 8px; }
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
-
   <div id="ui">
-    <h1>🎛️ Desafio de Patching & Switch</h1>
-    <p class="desc">Toque na porta do Patch Panel (Cima) e depois na porta correspondente do Switch (Baixo):</p>
+    <h1>🎛️ Patching & Switch 3D</h1>
+    <p class="desc">Toque na porta do Patch Panel (painel superior) e em seguida na porta do Switch (painel inferior):</p>
 
-    <div class="mission-box" id="mission">
-      <b>Missão 1:</b> Conecte o Patch Panel 02 (TI) na Porta 02 do Switch (VLAN 10).
+    <div class="score-badge" id="mission-progress">MISSÃO 1 DE 4</div>
+    <div class="mission-box">
+      <div class="mission-title" id="m-title">Conexão Padrão</div>
+      <div class="mission-desc" id="m-desc">Conecte a Porta 02 do Patch Panel na Porta 02 do Switch.</div>
     </div>
 
     <div class="controls">
-      <a href="index.html" class="btn-back">⬅️ Voltar</a>
-      <button class="btn-reset" onclick="resetGame()">🔄 Reiniciar</button>
+      <a href="index.html" class="btn btn-nav">⬅️ Menu</a>
+      <button class="btn btn-res" onclick="resetCables()">🔄 Reiniciar Cenario</button>
     </div>
   </div>
 
   <div id="canvas-container"></div>
 
   <script>
-    // Configuração de Cena
-    const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0b0f19, 0.03);
+    const MISSIONS = [
+      { id: 1, title: "1. Conexão Direta (Patch Cord)", from: 2, to: 2, desc: "Conecte a Porta 02 do Patch Panel na Porta 02 do Switch." },
+      { id: 2, title: "2. Inversão de Porta (Uplink)", from: 5, to: 8, desc: "Conecte a Porta 05 do Patch Panel na Porta 08 do Switch." },
+      { id: 3, title: "3. Servidor Crítico (Redundância)", from: 1, to: 1, desc: "Conecte a Porta 01 do Patch Panel na Porta 01 do Switch." },
+      { id: 4, title: "4. Trunking / Backbone", from: 7, to: 7, desc: "Conecte a Porta 07 do Patch Panel na Porta 07 do Switch." }
+    ];
 
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 0, 7);
+    let currentMissionIdx = 0;
+    let scene, camera, renderer, controls, rackGroup;
+    let selectedPP = null, cables = [], portsSW = [];
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
-
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    dirLight.position.set(5, 10, 5);
-    scene.add(dirLight);
-
-    // Patch Panel e Switch 3D
-    const rackGroup = new THREE.Group();
-    
-    // Panel (Cima)
-    const patchPanel = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.6, 0.8), new THREE.MeshStandardMaterial({ color: 0x222222 }));
-    patchPanel.position.set(0, 1.2, 0);
-    rackGroup.add(patchPanel);
-
-    // Switch (Baixo)
-    const switchMesh = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.6, 0.8), new THREE.MeshStandardMaterial({ color: 0x004488 }));
-    switchMesh.position.set(0, -1.2, 0);
-    rackGroup.add(switchMesh);
-
-    scene.add(rackGroup);
-
-    // Criando Portas Interativas
-    const portsPP = [];
-    const portsSW = [];
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    for(let i=0; i<8; i++) {
-      // Portas Patch Panel
-      const p1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.1), new THREE.MeshStandardMaterial({ color: 0x555555 }));
-      p1.position.set(-1.75 + (i * 0.5), 1.2, 0.41);
-      p1.userData = { type: 'PP', id: i + 1 };
-      rackGroup.add(p1);
-      portsPP.push(p1);
-
-      // Portas Switch
-      const p2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.1), new THREE.MeshStandardMaterial({ color: 0x111111 }));
-      p2.position.set(-1.75 + (i * 0.5), -1.2, 0.41);
-      p2.userData = { type: 'SW', id: i + 1 };
-      rackGroup.add(p2);
-      portsSW.push(p2);
-
-      // LEDs do Switch
-      const led = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), new THREE.MeshBasicMaterial({ color: 0x333333 }));
-      led.position.set(-1.75 + (i * 0.5), -0.95, 0.41);
-      led.name = `led-${i+1}`;
-      rackGroup.add(led);
+    function updateMissionUI() {
+      const m = MISSIONS[currentMissionIdx];
+      document.getElementById('mission-progress').innerText = `MISSÃO ${m.id} DE ${MISSIONS.length}`;
+      document.getElementById('m-title').innerText = m.title;
+      document.getElementById('m-desc').innerText = m.desc;
     }
 
-    let selectedPP = null;
-    let cables = [];
+    window.addEventListener('load', () => {
+      const c = document.getElementById('canvas-container');
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+      
+      // Posicionamento ajustado da câmera para desktop/mobile
+      if(window.innerWidth > 600) {
+        camera.position.set(1.2, 0, 7); // Leve desvio para a direita no PC para compensar o menu na esquerda
+      } else {
+        camera.position.set(0, 0.5, 7.5);
+      }
 
-    // Lógica de Toque/Clique 3D
-    window.addEventListener('pointerdown', (e) => {
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      c.appendChild(renderer.domElement);
 
-      const intersects = raycaster.intersectObjects(rackGroup.children);
-      if(intersects.length > 0) {
-        const obj = intersects[0].object;
-        if(obj.userData.type === 'PP') {
-          if(selectedPP) selectedPP.material.color.setHex(0x555555);
-          selectedPP = obj;
-          obj.material.color.setHex(0x00ff88);
-        } else if(obj.userData.type === 'SW' && selectedPP) {
-          createCable(selectedPP, obj);
-          selectedPP.material.color.setHex(0x555555);
-          selectedPP = null;
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+
+      rackGroup = new THREE.Group();
+      
+      // Patch Panel (Cima)
+      const pp = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.6, 0.8), new THREE.MeshStandardMaterial({ color: 0x222222 }));
+      pp.position.set(0, 1.2, 0);
+      rackGroup.add(pp);
+
+      // Switch (Baixo)
+      const sw = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.6, 0.8), new THREE.MeshStandardMaterial({ color: 0x004488 }));
+      sw.position.set(0, -1.2, 0);
+      rackGroup.add(sw);
+
+      for(let i = 0; i < 8; i++) {
+        // Portas do Patch Panel
+        const p1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.1), new THREE.MeshStandardMaterial({ color: 0x555555 }));
+        p1.position.set(-1.75 + (i * 0.5), 1.2, 0.41);
+        p1.userData = { type: 'PP', id: i + 1 };
+        rackGroup.add(p1);
+
+        // Portas do Switch
+        const p2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.1), new THREE.MeshStandardMaterial({ color: 0x111111 }));
+        p2.position.set(-1.75 + (i * 0.5), -1.2, 0.41);
+        p2.userData = { type: 'SW', id: i + 1 };
+        rackGroup.add(p2);
+        portsSW.push(p2);
+
+        // LEDs do Switch
+        const led = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), new THREE.MeshBasicMaterial({ color: 0x333333 }));
+        led.position.set(-1.75 + (i * 0.5), -0.95, 0.41);
+        led.name = `led-${i + 1}`;
+        rackGroup.add(led);
+      }
+      scene.add(rackGroup);
+
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+
+      function handleSelect(clientX, clientY) {
+        mouse.x = (clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(rackGroup.children);
+
+        if(intersects.length > 0) {
+          const obj = intersects[0].object;
+          if(obj.userData.type === 'PP') {
+            if(selectedPP) selectedPP.material.color.setHex(0x555555);
+            selectedPP = obj;
+            obj.material.color.setHex(0x00ff88);
+          } else if(obj.userData.type === 'SW' && selectedPP) {
+            connectPorts(selectedPP, obj);
+            selectedPP.material.color.setHex(0x555555);
+            selectedPP = null;
+          }
         }
       }
+
+      window.addEventListener('pointerdown', (e) => handleSelect(e.clientX, e.clientY));
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      updateMissionUI();
+      animate();
     });
 
-    function createCable(pp, sw) {
+    function connectPorts(pp, sw) {
+      const targetM = MISSIONS[currentMissionIdx];
+      
       const curve = new THREE.CatmullRomCurve3([
-        pp.position.clone().add(new THREE.Vector3(0,0,0.1)),
-        new THREE.Vector3((pp.position.x + sw.position.x)/2, 0, 1.2),
-        sw.position.clone().add(new THREE.Vector3(0,0,0.1))
+        pp.position.clone().add(new THREE.Vector3(0, 0, 0.1)),
+        new THREE.Vector3((pp.position.x + sw.position.x) / 2, 0, 1.2),
+        sw.position.clone().add(new THREE.Vector3(0, 0, 0.1))
       ]);
-      const cableMat = new THREE.MeshStandardMaterial({ color: 0x1f6beb });
-      const cable = new THREE.Mesh(new THREE.TubeGeometry(curve, 20, 0.04, 8, false), cableMat);
+      const cable = new THREE.Mesh(new THREE.TubeGeometry(curve, 20, 0.04, 8, false), new THREE.MeshStandardMaterial({ color: 0x1f6beb }));
       scene.add(cable);
       cables.push(cable);
 
-      // Validação de Conexão
       const led = rackGroup.getObjectByName(`led-${sw.userData.id}`);
-      if(pp.userData.id === sw.userData.id) {
-        led.material.color.setHex(0x00ff00); // Sucesso
-        document.getElementById('mission').innerHTML = `<b>🎉 Excelente!</b> Patch Cord conectado com sucesso na Porta ${sw.userData.id}! Link Ativo.`;
+
+      if(pp.userData.id === targetM.from && sw.userData.id === targetM.to) {
+        led.material.color.setHex(0x00ff00);
+        
+        if(currentMissionIdx < MISSIONS.length - 1) {
+          document.getElementById('m-desc').innerHTML = `<b style="color:#3fb950">🎉 Excelente!</b> Porta conectada com sucesso. Avançando missão...`;
+          setTimeout(() => {
+            currentMissionIdx++;
+            updateMissionUI();
+          }, 1600);
+        } else {
+          document.getElementById('m-desc').innerHTML = `<b style="color:#3fb950">🏆 PARABÉNS!</b> Você concluiu todas as missões de Patching!`;
+        }
       } else {
-        led.material.color.setHex(0xff0000); // Erro
-        document.getElementById('mission').innerHTML = `<b>⚠️ Atenção:</b> Conexão cruzada! O Patch Panel ${pp.userData.id} foi ligado na porta ${sw.userData.id}.`;
+        led.material.color.setHex(0xff0000);
+        document.getElementById('m-desc').innerHTML = `<b style="color:#f85149">⚠️ Erro de Patching:</b> Ligado PP ${pp.userData.id} -> SW ${sw.userData.id}. A missão pede PP ${targetM.from} -> SW ${targetM.to}.`;
       }
     }
 
-    function resetGame() {
+    function resetCables() {
       cables.forEach(c => scene.remove(c));
       cables = [];
       portsSW.forEach(p => {
         const led = rackGroup.getObjectByName(`led-${p.userData.id}`);
-        led.material.color.setHex(0x333333);
+        if(led) led.material.color.setHex(0x333333);
       });
-      document.getElementById('mission').innerHTML = `<b>Missão 1:</b> Conecte o Patch Panel 02 (TI) na Porta 02 do Switch (VLAN 10).`;
+      currentMissionIdx = 0;
+      updateMissionUI();
     }
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
   </script>
 </body>
 </html>
