@@ -9,7 +9,6 @@
     body { background: #0b0f19; color: #fff; overflow: hidden; width: 100vw; height: 100vh; }
     #canvas-container { width: 100vw; height: 100vh; touch-action: none; position: absolute; top: 0; left: 0; }
     
-    /* Painel lateral no PC (Esquerda) e responsivo no Celular */
     #ui { 
       position: absolute; 
       top: 15px; 
@@ -20,7 +19,7 @@
       border: 1px solid rgba(255, 255, 255, 0.15); 
       border-radius: 12px; 
       padding: 16px; 
-      width: 360px; 
+      width: 380px; 
       max-width: calc(100vw - 30px);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
@@ -33,10 +32,11 @@
     .pattern-btn.active { background: #1f6beb; color: #fff; border-color: #58a6ff; }
 
     .pins-container { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin-bottom: 10px; background: #0d1117; padding: 6px; border-radius: 6px; border: 1px solid #30363d; }
-    .pin-slot { aspect-ratio: 1/2; border: 1px dashed #484f58; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 2px; font-size: 0.6rem; font-weight: bold; color: #8b949e; cursor: pointer; }
+    .pin-slot { aspect-ratio: 1/2.2; border: 1px dashed #484f58; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 3px 1px; font-size: 0.55rem; font-weight: bold; color: #8b949e; cursor: pointer; text-align: center; word-break: break-word; }
 
-    .color-palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 12px; }
-    .color-btn { padding: 8px 2px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); font-size: 0.65rem; font-weight: bold; color: #fff; text-shadow: 0 1px 2px #000; cursor: pointer; text-align: center; }
+    .color-palette { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px; }
+    .color-btn { padding: 8px 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); font-size: 0.72rem; font-weight: bold; color: #fff; text-shadow: 0 1px 2px #000; cursor: pointer; text-align: center; transition: 0.2s; }
+    .color-btn:hover { transform: translateY(-1px); }
 
     .action-group { display: flex; gap: 6px; }
     .btn-act { flex: 1; padding: 9px; border-radius: 6px; border: none; font-weight: bold; font-size: 0.78rem; cursor: pointer; text-align: center; text-decoration: none; transition: 0.2s; }
@@ -49,19 +49,11 @@
 
     #status { margin-top: 10px; padding: 8px; border-radius: 6px; font-size: 0.78rem; text-align: center; font-weight: bold; display: none; }
 
-    /* Ajustes para telas de Celular */
     @media (max-width: 600px) {
-      #ui { 
-        top: auto; 
-        bottom: 12px; 
-        left: 50%; 
-        transform: translateX(-50%); 
-        width: 92vw; 
-        padding: 12px;
-      }
+      #ui { top: auto; bottom: 12px; left: 50%; transform: translateX(-50%); width: 94vw; padding: 12px; }
       h1 { font-size: 0.95rem; }
       p.desc { font-size: 0.72rem; margin-bottom: 8px; }
-      .color-btn { padding: 6px 2px; }
+      .color-btn { padding: 6px 4px; font-size: 0.68rem; }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -70,7 +62,7 @@
 <body>
   <div id="ui">
     <h1>🔌 Crimpagem RJ-45 3D</h1>
-    <p class="desc">Escolha a norma e toque nas cores para preencher os 8 pinos do conector:</p>
+    <p class="desc">Escolha a norma e selecione as cores na ordem exata dos 8 pinos:</p>
     
     <div class="pattern-selector">
       <button class="pattern-btn active" id="btnA" onclick="setPattern('T568A')">Norma T568A</button>
@@ -93,19 +85,19 @@
 
   <script>
     const COLORS = {
-      'VB': { hex: 0x90ee90, bg: 'linear-gradient(135deg, #fff 50%, #2ea043 50%)', txt: '#000' },
-      'V':  { hex: 0x2ea043, bg: '#2ea043', txt: '#fff' },
-      'LB': { hex: 0xffa500, bg: 'linear-gradient(135deg, #fff 50%, #ff7b72 50%)', txt: '#000' },
-      'A':  { hex: 0x1f6beb, bg: '#1f6beb', txt: '#fff' },
-      'AB': { hex: 0xadd8e6, bg: 'linear-gradient(135deg, #fff 50%, #1f6beb 50%)', txt: '#000' },
-      'L':  { hex: 0xff7b72, bg: '#ff7b72', txt: '#fff' },
-      'MB': { hex: 0xd2b48c, bg: 'linear-gradient(135deg, #fff 50%, #8b4513 50%)', txt: '#000' },
-      'M':  { hex: 0x8b4513, bg: '#8b4513', txt: '#fff' }
+      'Verde/Branco':  { hex: 0x90ee90, bg: 'linear-gradient(135deg, #ffffff 45%, #2ea043 55%)', txt: '#000' },
+      'Verde':         { hex: 0x2ea043, bg: '#2ea043', txt: '#fff' },
+      'Laranja/Branco':{ hex: 0xffa500, bg: 'linear-gradient(135deg, #ffffff 45%, #ff7b72 55%)', txt: '#000' },
+      'Azul':          { hex: 0x1f6beb, bg: '#1f6beb', txt: '#fff' },
+      'Azul/Branco':   { hex: 0xadd8e6, bg: 'linear-gradient(135deg, #ffffff 45%, #1f6beb 55%)', txt: '#000' },
+      'Laranja':       { hex: 0xff7b72, bg: '#ff7b72', txt: '#fff' },
+      'Marrom/Branco': { hex: 0xd2b48c, bg: 'linear-gradient(135deg, #ffffff 45%, #8b4513 55%)', txt: '#000' },
+      'Marrom':        { hex: 0x8b4513, bg: '#8b4513', txt: '#fff' }
     };
 
     const PATTERNS = {
-      'T568A': ['VB', 'V', 'LB', 'A', 'AB', 'L', 'MB', 'M'],
-      'T568B': ['LB', 'L', 'VB', 'A', 'AB', 'V', 'MB', 'M']
+      'T568A': ['Verde/Branco', 'Verde', 'Laranja/Branco', 'Azul', 'Azul/Branco', 'Laranja', 'Marrom/Branco', 'Marrom'],
+      'T568B': ['Laranja/Branco', 'Laranja', 'Verde/Branco', 'Azul', 'Azul/Branco', 'Verde', 'Marrom/Branco', 'Marrom']
     };
 
     let currentPat = 'T568A';
@@ -119,8 +111,8 @@
       }
       const palEl = document.getElementById('palette');
       palEl.innerHTML = '';
-      Object.keys(COLORS).forEach(k => {
-        palEl.innerHTML += `<div class="color-btn" style="background:${COLORS[k].bg};color:${COLORS[k].txt}" onclick="addWire('${k}')">${k}</div>`;
+      Object.keys(COLORS).forEach(name => {
+        palEl.innerHTML += `<div class="color-btn" style="background:${COLORS[name].bg};color:${COLORS[name].txt}" onclick="addWire('${name}')">${name}</div>`;
       });
     }
 
@@ -131,9 +123,9 @@
       resetGame();
     }
 
-    function addWire(k) {
+    function addWire(name) {
       const idx = userOrder.indexOf(null);
-      if(idx !== -1) { userOrder[idx] = k; updateUI(); update3D(); }
+      if(idx !== -1) { userOrder[idx] = name; updateUI(); update3D(); }
     }
     function removeWire(i) { userOrder[i] = null; updateUI(); update3D(); }
     
@@ -144,12 +136,12 @@
     }
 
     function updateUI() {
-      userOrder.forEach((k, i) => {
+      userOrder.forEach((name, i) => {
         const el = document.getElementById(`pin-${i}`);
-        if(k) {
-          el.style.background = COLORS[k].bg;
-          el.style.color = COLORS[k].txt;
-          el.innerHTML = `<span>P${i+1}</span><span>${k}</span>`;
+        if(name) {
+          el.style.background = COLORS[name].bg;
+          el.style.color = COLORS[name].txt;
+          el.innerHTML = `<span>P${i+1}</span><span style="font-size:0.5rem">${name}</span>`;
         } else {
           el.style.background = 'transparent';
           el.style.color = '#8b949e';
@@ -176,16 +168,14 @@
       }
     }
 
-    // 3D Scene
     let scene, camera, renderer, controls, wireMeshes = [];
-    const MODEL_Y_OFFSET = -0.8; // Rebaixa o modelo 3D em relação ao topo
+    const MODEL_Y_OFFSET = -0.8;
 
     window.addEventListener('load', () => {
       const c = document.getElementById('canvas-container');
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-      // Posicionamento e foco rebaixados para dar destaque total ao conector RJ-45
       if(window.innerWidth > 600) {
         camera.position.set(1.2, MODEL_Y_OFFSET + 1.5, 6.5);
       } else {
@@ -198,18 +188,16 @@
       c.appendChild(renderer.domElement);
 
       controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.target.set(0, MODEL_Y_OFFSET, 0); // Ponto de rotação rebaixado
+      controls.target.set(0, MODEL_Y_OFFSET, 0);
       controls.enableDamping = true;
 
       scene.add(new THREE.AmbientLight(0xffffff, 0.9));
       
-      // Corpo transparente do RJ-45
       const rjMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, roughness: 0.1, transmission: 0.9 });
       const rj = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.2, 3), rjMat);
       rj.position.y = MODEL_Y_OFFSET;
       scene.add(rj);
 
-      // Pinos metálicos
       for(let i = 0; i < 8; i++) {
         const pin = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.8), new THREE.MeshStandardMaterial({ color: 0xb8860b, metalness: 0.9 }));
         pin.position.set(-1.05 + (i * 0.3), MODEL_Y_OFFSET + 0.6, 0.8);
@@ -235,9 +223,9 @@
     function update3D() {
       wireMeshes.forEach(m => scene.remove(m));
       wireMeshes = [];
-      userOrder.forEach((k, i) => {
-        if(k) {
-          const w = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 3.5, 12), new THREE.MeshStandardMaterial({ color: COLORS[k].hex }));
+      userOrder.forEach((name, i) => {
+        if(name) {
+          const w = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 3.5, 12), new THREE.MeshStandardMaterial({ color: COLORS[name].hex }));
           w.rotation.x = Math.PI / 2;
           w.position.set(-1.05 + (i * 0.3), MODEL_Y_OFFSET, 0.5);
           scene.add(w);
