@@ -97,7 +97,7 @@
           { txt: "💻 Reiniciar a placa de rede no Windows", res: "❌ Ineficaz. A interface continua sem link físico (Cabo desconectado/sem sinal).", color: "#da3633", state: "wrong" },
           { txt: "🔍 Testar o Patch Cord com Testador RJ-45", res: "⚠️ Testador indica falta de continuidade no Pino 3 (Verde/Branco). Fio rompido internamente!", color: "#ffcc00", state: "diagnosed" },
           { txt: "⚡ Trocar a placa de rede do computador", res: "❌ Desnecessário. O teste de loopback confirma que a Placa de Rede está 100% operacional.", color: "#da3633", state: "wrong" },
-          { txt: "🛠️ Solução: Substituir o Patch Cord Danificado", res: "🎉 SUCESSO! Patch cord CAT6 novo instalado. Link de 1 Gbps estabelecido no PC!", color: "#2ea043", state: "solved" },
+          { txt: "🛠️ Substituir o Patch Cord Danificado", res: "🎉 SUCESSO! Patch cord CAT6 novo instalado. Link de 1 Gbps estabelecido no PC!", color: "#2ea043", state: "solved" },
           { txt: "🔄 Alterar o IP estático do computador", res: "❌ Sem efeito. O problema é na camada física (Camada 1), não nas configurações de IP.", color: "#da3633", state: "wrong" }
         ]
       },
@@ -108,7 +108,7 @@
         actions: [
           { txt: "🔄 Redefinir as configurações de rede do Switch", res: "❌ Inútil. A porta do Switch está configurada corretamente em Auto-negociação.", color: "#da3633", state: "wrong" },
           { txt: "🔍 Inspecionar a rota do cabo no teto/calha", res: "⚠️ Inspecionado: Cabo UTP não blindado está colado com cabos elétricos de alta tensão do Ar-Condicionado!", color: "#ffcc00", state: "diagnosed" },
-          { txt: "🛠️ Solução: Reorganizar Rota do Cabo (Afastar do Eletroduto)", res: "🎉 SUCESSO! Cabo realocado para calha exclusiva. Interferência Eletromagnética (EMI) reduzida a zero!", color: "#2ea043", state: "solved" },
+          { txt: "🛠️ Reorganizar Rota do Cabo (Afastar do Eletroduto)", res: "🎉 SUCESSO! Cabo realocado para calha exclusiva. Interferência Eletromagnética (EMI) reduzida a zero!", color: "#2ea043", state: "solved" },
           { txt: "⚡ Substituir os conectores RJ-45 das pontas", res: "❌ Não resolveu. A degradação ocorre por indução eletromagnética ao longo do trajeto.", color: "#da3633", state: "wrong" },
           { txt: "💻 Trocar a impressora de tomada elétrica", res: "❌ Sem impacto na taxa de transferência dos dados de rede.", color: "#da3633", state: "wrong" }
         ]
@@ -119,7 +119,7 @@
         symptom: "A rede só funciona quando o usuário empurra e segura o cabo conectado à tomada da parede.",
         actions: [
           { txt: "🔍 Abrir e inspecionar a Tomada Fêmea Keystone", res: "⚠️ Lâminas Punchdown do Keystone estão frouxas, zarcão oxidado e pares com mau contato.", color: "#ffcc00", state: "diagnosed" },
-          { txt: "🛠️ Solução: Refazer Crimpagem no Keystone 110", res: "🎉 SUCESSO! Conector Keystone novo crimpado no padrão T568A. Conexão firme e estável!", color: "#2ea043", state: "solved" },
+          { txt: "🛠️ Refazer Crimpagem no Keystone 110", res: "🎉 SUCESSO! Conector Keystone novo crimpado no padrão T568A. Conexão firme e estável!", color: "#2ea043", state: "solved" },
           { txt: "⚡ Aplicar fita isolante no conector do cabo", res: "❌ Ineficiente e fora dos padrões técnicos da norma ANSI/TIA-568.", color: "#da3633", state: "wrong" },
           { txt: "🔄 Inverter os pares T568A para T568B no Patch Cord", res: "❌ Erro! Mudar o padrão do Patch Cord não corrige o mau contato físico da tomada Keystone.", color: "#da3633", state: "wrong" },
           { txt: "💻 Trocar a porta de conexão do Switch central", res: "❌ O problema está na tomada física da estação de trabalho, não no rack central.", color: "#da3633", state: "wrong" }
@@ -133,7 +133,7 @@
           { txt: "⚡ Crimpagem de novos conectores blindados RJ-45", res: "❌ Não resolveu. Sinal continua atenuado e sem alcance.", color: "#da3633", state: "wrong" },
           { txt: "🔍 Usar Certificador TDR para medir comprimento", res: "⚠️ O lance de cabo UTP contínuo mede 138 metros! (Limite de norma ANSI/TIA é 90m + 10m).", color: "#ffcc00", state: "diagnosed" },
           { txt: "💻 Forçar velocidade da placa para 100 Mbps Half-Duplex", res: "❌ Apenas reduz os erros temporariamente, mas não estabiliza a conexão nem resolve o limite físico.", color: "#da3633", state: "wrong" },
-          { txt: "🛠️ Solução: Instalar Switch Intermediário / Repetidor", res: "🎉 SUCESSO! Switch repetidor instalado na marca de 70m. Sinal regenerado dentro da norma!", color: "#2ea043", state: "solved" },
+          { txt: "🛠️ Instalar Switch Intermediário / Repetidor", res: "🎉 SUCESSO! Switch repetidor instalado na marca de 70m. Sinal regenerado dentro da norma!", color: "#2ea043", state: "solved" },
           { txt: "🔄 Trocar a fonte de alimentação do Switch principal", res: "❌ Irrelevante. A fonte do Switch está operando em voltagem normal.", color: "#da3633", state: "wrong" }
         ]
       }
