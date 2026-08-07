@@ -9,7 +9,6 @@
     body { background: #0b0f19; color: #fff; overflow: hidden; width: 100vw; height: 100vh; }
     #canvas-container { width: 100vw; height: 100vh; touch-action: none; position: absolute; top: 0; left: 0; }
     
-    /* Painel lateral no PC (Esquerda) e responsivo no Celular */
     #ui { 
       position: absolute; 
       top: 15px; 
@@ -20,7 +19,7 @@
       border: 1px solid rgba(255, 255, 255, 0.15); 
       border-radius: 12px; 
       padding: 16px; 
-      width: 350px; 
+      width: 370px; 
       max-width: calc(100vw - 30px);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
@@ -43,8 +42,8 @@
     .problem-desc { color: #e6edf3; font-size: 0.82rem; line-height: 1.3; }
 
     .action-label { font-size: 0.72rem; color: #8b949e; text-transform: uppercase; font-weight: bold; margin-bottom: 6px; }
-    .opts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-    .btn-opt { padding: 9px 10px; background: #21262d; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; font-size: 0.78rem; font-weight: bold; cursor: pointer; text-align: left; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+    .opts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; max-height: 220px; overflow-y: auto; }
+    .btn-opt { padding: 9px 10px; background: #21262d; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; font-size: 0.78rem; font-weight: bold; cursor: pointer; text-align: left; transition: 0.2s; display: flex; align-items: center; gap: 8px; line-height: 1.2; }
     .btn-opt:hover, .btn-opt:active { background: #30363d; color: #fff; border-color: #58a6ff; }
 
     .controls { display: flex; gap: 8px; }
@@ -54,20 +53,13 @@
     .btn-nav { background: #30363d; color: #ccc; }
     .btn-nav:hover, .btn-nav:active { background: #484f58; color: #fff; }
 
-    /* Ajustes para telas de Celular */
     @media (max-width: 600px) {
-      #ui { 
-        top: auto; 
-        bottom: 12px; 
-        left: 50%; 
-        transform: translateX(-50%); 
-        width: 92vw; 
-        padding: 12px;
-      }
+      #ui { top: auto; bottom: 12px; left: 50%; transform: translateX(-50%); width: 92vw; padding: 12px; }
       h1 { font-size: 0.95rem; }
       p.desc { font-size: 0.72rem; margin-bottom: 8px; }
       .problem-box { padding: 8px; margin-bottom: 8px; }
-      .btn-opt { padding: 8px; font-size: 0.75rem; }
+      .btn-opt { padding: 8px; font-size: 0.74rem; }
+      .opts { max-height: 180px; }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -76,7 +68,7 @@
 <body>
   <div id="ui">
     <h1>🛠️ Diagnóstico de Falhas 3D</h1>
-    <p class="desc">Analise o problema físico da rede, utilize as ferramentas de medição e aplique a solução correta:</p>
+    <p class="desc">Examine o cenário 3D, selecione os procedimentos de testes e determine a solução correta:</p>
 
     <div class="badge" id="case-progress">CASO 1 DE 4</div>
     <div class="problem-box" id="p-box">
@@ -84,7 +76,7 @@
       <div class="problem-desc" id="p-desc">Carregando cenário...</div>
     </div>
 
-    <div class="action-label">Ações de Diagnóstico e Reparo:</div>
+    <div class="action-label">Opções de Teste / Reparo:</div>
     <div class="opts" id="actions-container"></div>
 
     <div class="controls">
@@ -100,51 +92,56 @@
       {
         id: 1,
         title: "Caso 1: Estação Sem Conexão (Link Down)",
-        symptom: "O computador da recepção perdeu a rede repentinamente. O LED da placa de rede está totalmente apagado.",
+        symptom: "O computador da recepção perdeu a rede repentinamente. O LED do conector RJ-45 atrás do PC está totalmente apagado.",
         actions: [
-          { txt: "🔍 Usar Testador de Cabo RJ-45", res: "Testador aponta pino 3 (Verde/Branco) sem continuidade. Fio quebrado interno!", color: "#ffcc00", state: "diagnosed" },
-          { txt: "⚡ Verificar o Switch da Sala", res: "Porta do Switch intacta e funcionando normalmente para outros ramais.", color: "#8b949e", state: "normal" },
-          { txt: "🛠️ Solução: Substituir o Patch Cord Danificado", res: "🎉 SUCESSO! Cabo substituído por um certificado CAT6. Link de 1 Gbps estabelecido!", color: "#2ea043", state: "solved" }
-        ],
-        cableColor: 0xda3633 // Vermelho (com defeito)
+          { txt: "💻 Reiniciar a placa de rede no Windows", res: "❌ Ineficaz. A interface continua sem link físico (Cabo desconectado/sem sinal).", color: "#da3633", state: "wrong" },
+          { txt: "🔍 Testar o Patch Cord com Testador RJ-45", res: "⚠️ Testador indica falta de continuidade no Pino 3 (Verde/Branco). Fio rompido internamente!", color: "#ffcc00", state: "diagnosed" },
+          { txt: "⚡ Trocar a placa de rede do computador", res: "❌ Desnecessário. O teste de loopback confirma que a Placa de Rede está 100% operacional.", color: "#da3633", state: "wrong" },
+          { txt: "🛠️ Solução: Substituir o Patch Cord Danificado", res: "🎉 SUCESSO! Patch cord CAT6 novo instalado. Link de 1 Gbps estabelecido no PC!", color: "#2ea043", state: "solved" },
+          { txt: "🔄 Alterar o IP estático do computador", res: "❌ Sem efeito. O problema é na camada física (Camada 1), não nas configurações de IP.", color: "#da3633", state: "wrong" }
+        ]
       },
       {
         id: 2,
         title: "Caso 2: Lentidão Severa & Perda de Pacotes",
-        symptom: "A impressora de rede funciona em 10 Mbps e apresenta constante perda de pacotes durante grandes impressões.",
+        symptom: "A impressora de rede funciona em apenas 10 Mbps e apresenta alta taxa de perda de pacotes durante picos de uso.",
         actions: [
-          { txt: "🔍 Inspecionar Instalação no Teto", res: "Cabo UTP está enrolado junto com fios de alta tensão de um ar-condicionado!", color: "#ffcc00", state: "diagnosed" },
-          { txt: "⚡ Testar com Notebook Direto no Switch", res: "Conexão no Switch funciona em 1000 Mbps normalmente.", color: "#8b949e", state: "normal" },
-          { txt: "🛠️ Solução: Reorganizar Rota do Cabo (Afastar da EMI)", res: "🎉 SUCESSO! Cabo movido para calha exclusiva. Interferência eletromagnética zerada!", color: "#2ea043", state: "solved" }
-        ],
-        cableColor: 0xffa500 // Laranja (Alerta de interferência)
+          { txt: "🔄 Redefinir as configurações de rede do Switch", res: "❌ Inútil. A porta do Switch está configurada corretamente em Auto-negociação.", color: "#da3633", state: "wrong" },
+          { txt: "🔍 Inspecionar a rota do cabo no teto/calha", res: "⚠️ Inspecionado: Cabo UTP não blindado está colado com cabos elétricos de alta tensão do Ar-Condicionado!", color: "#ffcc00", state: "diagnosed" },
+          { txt: "🛠️ Solução: Reorganizar Rota do Cabo (Afastar do Eletroduto)", res: "🎉 SUCESSO! Cabo realocado para calha exclusiva. Interferência Eletromagnética (EMI) reduzida a zero!", color: "#2ea043", state: "solved" },
+          { txt: "⚡ Substituir os conectores RJ-45 das pontas", res: "❌ Não resolveu. A degradação ocorre por indução eletromagnética ao longo do trajeto.", color: "#da3633", state: "wrong" },
+          { txt: "💻 Trocar a impressora de tomada elétrica", res: "❌ Sem impacto na taxa de transferência dos dados de rede.", color: "#da3633", state: "wrong" }
+        ]
       },
       {
         id: 3,
         title: "Caso 3: Mau Contato na Tomada Keystone",
-        symptom: "A rede só funciona quando o usuário balança o cabo que está conectado à tomada fêmea na parede.",
+        symptom: "A rede só funciona quando o usuário empurra e segura o cabo conectado à tomada da parede.",
         actions: [
-          { txt: "🔍 Abrir Espelho e Inspecionar Keystone", res: "A lâmina Punchdown do conector Keystone está frouxa e oxidada.", color: "#ffcc00", state: "diagnosed" },
-          { txt: "⚡ Substituir o Cabo RJ-45 do PC", res: "O problema persiste. O defeito está na tomada da parede.", color: "#8b949e", state: "normal" },
-          { txt: "🛠️ Solução: Refazer a Crimpagem na Keystone 110", res: "🎉 SUCESSO! Conector Keystone novo crimpado no padrão T568A. Conexão firme!", color: "#2ea043", state: "solved" }
-        ],
-        cableColor: 0xf2994a // Laranja Claro (Mau contato)
+          { txt: "🔍 Abrir e inspecionar a Tomada Fêmea Keystone", res: "⚠️ Lâminas Punchdown do Keystone estão frouxas, zarcão oxidado e pares com mau contato.", color: "#ffcc00", state: "diagnosed" },
+          { txt: "🛠️ Solução: Refazer Crimpagem no Keystone 110", res: "🎉 SUCESSO! Conector Keystone novo crimpado no padrão T568A. Conexão firme e estável!", color: "#2ea043", state: "solved" },
+          { txt: "⚡ Aplicar fita isolante no conector do cabo", res: "❌ Ineficiente e fora dos padrões técnicos da norma ANSI/TIA-568.", color: "#da3633", state: "wrong" },
+          { txt: "🔄 Inverter os pares T568A para T568B no Patch Cord", res: "❌ Erro! Mudar o padrão do Patch Cord não corrige o mau contato físico da tomada Keystone.", color: "#da3633", state: "wrong" },
+          { txt: "💻 Trocar a porta de conexão do Switch central", res: "❌ O problema está na tomada física da estação de trabalho, não no rack central.", color: "#da3633", state: "wrong" }
+        ]
       },
       {
         id: 4,
-        title: "Caso 4: Distância Excedida (Atenuação)",
-        symptom: "Link caindo a cada 5 minutos no galpão de estoque distante.",
+        title: "Caso 4: Distância Excedida (Atenuação de Sinal)",
+        symptom: "Link de rede caindo continuamente a cada 5 minutos no galpão de logística distante.",
         actions: [
-          { txt: "🔍 Usar Certificador/TDR para Medir Distância", res: "O lance de cabo UTP possui 135 metros contínuos! (Limite ANSI/TIA = 90m + 10m).", color: "#ffcc00", state: "diagnosed" },
-          { txt: "⚡ Substituir os Conectores RJ-45", res: "Não resolve. O sinal sofre atenuação excessiva pelo comprimento do cabo.", color: "#8b949e", state: "normal" },
-          { txt: "🛠️ Solução: Instalar Switch Intermediário / Repetidor", res: "🎉 SUCESSO! Switch repetidor instalado aos 70 metros. Sinal regenerado com sucesso!", color: "#2ea043", state: "solved" }
-        ],
-        cableColor: 0xda3633 // Vermelho
+          { txt: "⚡ Crimpagem de novos conectores blindados RJ-45", res: "❌ Não resolveu. Sinal continua atenuado e sem alcance.", color: "#da3633", state: "wrong" },
+          { txt: "🔍 Usar Certificador TDR para medir comprimento", res: "⚠️ O lance de cabo UTP contínuo mede 138 metros! (Limite de norma ANSI/TIA é 90m + 10m).", color: "#ffcc00", state: "diagnosed" },
+          { txt: "💻 Forçar velocidade da placa para 100 Mbps Half-Duplex", res: "❌ Apenas reduz os erros temporariamente, mas não estabiliza a conexão nem resolve o limite físico.", color: "#da3633", state: "wrong" },
+          { txt: "🛠️ Solução: Instalar Switch Intermediário / Repetidor", res: "🎉 SUCESSO! Switch repetidor instalado na marca de 70m. Sinal regenerado dentro da norma!", color: "#2ea043", state: "solved" },
+          { txt: "🔄 Trocar a fonte de alimentação do Switch principal", res: "❌ Irrelevante. A fonte do Switch está operando em voltagem normal.", color: "#da3633", state: "wrong" }
+        ]
       }
     ];
 
     let currentFaultIdx = 0;
-    let scene, camera, renderer, controls, cableMesh, testerMesh, statusLed;
+    let scene, camera, renderer, controls;
+    let sceneGroup;
 
     function renderCase() {
       const f = FAULTS[currentFaultIdx];
@@ -155,7 +152,7 @@
       const optsEl = document.getElementById('actions-container');
       optsEl.innerHTML = '';
 
-      f.actions.forEach((act, idx) => {
+      f.actions.forEach((act) => {
         const btn = document.createElement('button');
         btn.className = 'btn-opt';
         btn.innerHTML = act.txt;
@@ -163,12 +160,7 @@
         optsEl.appendChild(btn);
       });
 
-      if(cableMesh) {
-        cableMesh.material.color.setHex(f.cableColor);
-      }
-      if(statusLed) {
-        statusLed.material.color.setHex(0xda3633); // LED Vermelho por padrão no início
-      }
+      build3DSceneForCase(f.id);
     }
 
     function executeAction(act) {
@@ -183,8 +175,7 @@
         pTitle.style.color = '#3fb950';
         pTitle.innerText = "Resultado da Ação";
         
-        if(cableMesh) cableMesh.material.color.setHex(0x2ea043); // Verde (Corrigido)
-        if(statusLed) statusLed.material.color.setHex(0x00ff00); // LED Verde
+        update3DState(true);
 
         if(currentFaultIdx < FAULTS.length - 1) {
           setTimeout(() => {
@@ -192,18 +183,103 @@
             pBox.style.borderLeftColor = '#da3633';
             pTitle.style.color = '#f85149';
             renderCase();
-          }, 2500);
+          }, 2600);
         } else {
           setTimeout(() => {
             pTitle.innerText = "🏆 Treinamento Concluído";
-            pDesc.innerHTML = "<b>Parabéns!</b> Você resolveu todos os diagnósticos físicos de cabeamento estruturado!";
+            pDesc.innerHTML = "<b>Parabéns!</b> Você domina a identificação e resolução de falhas físicas em cabeamento estruturado!";
           }, 1000);
         }
+      } else if(act.state === 'diagnosed') {
+        pBox.style.borderLeftColor = '#ffcc00';
+        pTitle.style.color = '#ffcc00';
+        pTitle.innerText = "Diagnóstico do Teste";
       } else {
-        pBox.style.borderLeftColor = act.color;
-        pTitle.style.color = act.color;
-        pTitle.innerText = "Análise / Diagnóstico";
+        pBox.style.borderLeftColor = '#da3633';
+        pTitle.style.color = '#f85149';
+        pTitle.innerText = "Ação Incorreta";
       }
+    }
+
+    function build3DSceneForCase(caseId) {
+      if(!scene) return;
+      if(sceneGroup) scene.remove(sceneGroup);
+      
+      sceneGroup = new THREE.Group();
+
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(5, 0.1, 3), new THREE.MeshStandardMaterial({ color: 0x1f242d }));
+      bench.position.y = -0.5;
+      sceneGroup.add(bench);
+
+      if(caseId === 1) {
+        // Computador + Cabo Partido
+        const pc = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.4, 1.2), new THREE.MeshStandardMaterial({ color: 0x30363d }));
+        pc.position.set(-1.2, 0.25, 0);
+        sceneGroup.add(pc);
+
+        const cable1 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.2), new THREE.MeshStandardMaterial({ color: 0xda3633 }));
+        cable1.rotation.z = Math.PI / 2;
+        cable1.position.set(-0.2, 0, 0);
+        sceneGroup.add(cable1);
+
+        const cable2 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.2), new THREE.MeshStandardMaterial({ color: 0xda3633 }));
+        cable2.rotation.z = Math.PI / 2;
+        cable2.position.set(1.2, 0, 0);
+        sceneGroup.add(cable2);
+        
+        sceneGroup.name = "case1_mesh";
+      } 
+      else if(caseId === 2) {
+        // Eletroduto elétrico vermelho + Cabo UTP colado
+        const powerConduit = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 3.5), new THREE.MeshStandardMaterial({ color: 0xffa500 }));
+        powerConduit.rotation.z = Math.PI / 2;
+        powerConduit.position.set(0, 0.2, -0.3);
+        sceneGroup.add(powerConduit);
+
+        const utpCable = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 3.5), new THREE.MeshStandardMaterial({ color: 0xda3633 }));
+        utpCable.rotation.z = Math.PI / 2;
+        utpCable.position.set(0, 0.2, 0);
+        sceneGroup.add(utpCable);
+
+        sceneGroup.name = "case2_mesh";
+      } 
+      else if(caseId === 3) {
+        // Caixa Keystone de parede aberta
+        const box = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 0.6), new THREE.MeshStandardMaterial({ color: 0x8b949e }));
+        box.position.set(0, 0.2, 0);
+        sceneGroup.add(box);
+
+        const jack = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshStandardMaterial({ color: 0xda3633 }));
+        jack.position.set(0, 0.2, 0.35);
+        sceneGroup.add(jack);
+
+        sceneGroup.name = "case3_mesh";
+      } 
+      else if(caseId === 4) {
+        // Bobina gigante de cabo (138m)
+        const spool = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 1.2, 24), new THREE.MeshStandardMaterial({ color: 0x1f6beb }));
+        spool.position.set(-0.5, 0.2, 0);
+        sceneGroup.add(spool);
+
+        const tester = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.3), new THREE.MeshStandardMaterial({ color: 0xffcc00 }));
+        tester.position.set(1.2, 0.1, 0);
+        sceneGroup.add(tester);
+
+        sceneGroup.name = "case4_mesh";
+      }
+
+      scene.add(sceneGroup);
+    }
+
+    function update3DState(solved) {
+      if(!sceneGroup) return;
+      sceneGroup.traverse((child) => {
+        if(child.isMesh && child.material) {
+          if(child.material.color.getHex() === 0xda3633) {
+            child.material.color.setHex(solved ? 0x2ea043 : 0xda3633);
+          }
+        }
+      });
     }
 
     window.addEventListener('load', () => {
@@ -211,7 +287,6 @@
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-      // Posicionamento ajustado da câmera para desktop/mobile
       if(window.innerWidth > 600) {
         camera.position.set(1.2, 1.5, 5.5);
       } else {
@@ -227,29 +302,6 @@
       controls.enableDamping = true;
 
       scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-
-      // Bancada / Mesa de Testes 3D
-      const bench = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.1, 2.5), new THREE.MeshStandardMaterial({ color: 0x1f242d }));
-      bench.position.y = -0.5;
-      scene.add(bench);
-
-      // Testador de Cabo (Amarelo)
-      testerMesh = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.4, 0.3), new THREE.MeshStandardMaterial({ color: 0xf2994a }));
-      testerMesh.position.set(-1.2, 0.2, 0);
-      scene.add(testerMesh);
-
-      // LED de Status no Testador
-      statusLed = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), new THREE.MeshBasicMaterial({ color: 0xda3633 }));
-      statusLed.position.set(-1.2, 0.7, 0.16);
-      scene.add(statusLed);
-
-      // Cabo UTP sob Análise
-      const cableGeom = new THREE.CylinderGeometry(0.06, 0.06, 2.8, 16);
-      const cableMat = new THREE.MeshStandardMaterial({ color: FAULTS[0].cableColor });
-      cableMesh = new THREE.Mesh(cableGeom, cableMat);
-      cableMesh.rotation.z = Math.PI / 2;
-      cableMesh.position.set(0.6, 0, 0);
-      scene.add(cableMesh);
 
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
